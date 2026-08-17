@@ -1,5 +1,29 @@
 # Installation, migration, rollback, and removal
 
+## Install from a package manager
+
+Homebrew and Nix are the preferred installation paths for a local machine.
+
+The Formula is maintained in the `sorafujitani/homebrew-tap` repository:
+
+```sh
+brew tap sorafujitani/tap
+brew install hermes
+```
+
+The Nix flake provides the Rust package together with `fzf` and `ghq`:
+
+```sh
+nix profile install github:sorafujitani/hermes.zsh#hermes
+```
+
+For a Nix installation, source the loader from the default profile:
+
+```zsh
+source "$HOME/.nix-profile/share/hermes/hermes.zsh"
+hermes-bind-default-keys
+```
+
 ## Install from a release
 
 Download `scripts/install.sh` from the same tagged source revision, inspect it,
