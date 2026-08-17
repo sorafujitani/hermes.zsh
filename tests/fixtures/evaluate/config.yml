@@ -1,0 +1,5 @@
+snippets:
+  - name: evaluated fixture
+    keyword: fe
+    snippet: "printf 'evaluated {{VALUE}}'"
+    evaluate: true

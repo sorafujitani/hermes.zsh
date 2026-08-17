@@ -1,0 +1,4 @@
+snippets:
+  - name: fixture snippet
+    keyword: fy
+    snippet: "echo {{VALUE}}"

@@ -1,0 +1,38 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  rust:
+    strategy:
+      matrix:
+        os: [macos-latest, ubuntu-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@1.85.0
+        with:
+          components: clippy,rustfmt
+      - name: Install feature-test tools
+        run: |
+          if command -v brew >/dev/null 2>&1; then
+            brew install fzf ghq
+          else
+            sudo apt-get update
+            sudo apt-get install -y fzf
+            go install github.com/x-motemen/ghq@v1.9.4
+            echo "$(go env GOPATH)/bin" >> "$GITHUB_PATH"
+          fi
+      - run: cargo fmt --all -- --check
+      - run: cargo clippy --workspace --all-targets -- -D warnings
+      - run: cargo test --workspace
+      - run: cargo build --workspace --release
+      - run: HERMES_BIN="$PWD/target/release/hermes" zsh tests/zsh/smoke.zsh
+      - run: HERMES_BIN="$PWD/target/release/hermes" tests/daemon/lifecycle.sh
+      - run: HERMES_BIN="$PWD/target/release/hermes" tests/history/stress.sh
+      - run: HERMES_BIN="$PWD/target/release/hermes" tests/config/cache.sh
+      - run: HERMES_BIN="$PWD/target/release/hermes" tests/zsh/fallback.sh
+      - run: HERMES_BIN="$PWD/target/release/hermes" tests/features/completion.sh
+      - run: HERMES_BIN="$PWD/target/release/hermes" tests/release/matrix.sh

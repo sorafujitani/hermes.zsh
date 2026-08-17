@@ -1,0 +1,88 @@
+name: Release artifacts
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            artifact: x86_64-unknown-linux-gnu
+          - os: ubuntu-24.04-arm
+            artifact: aarch64-unknown-linux-gnu
+          - os: macos-13
+            artifact: x86_64-apple-darwin
+          - os: macos-14
+            artifact: aarch64-apple-darwin
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@1.85.0
+      - name: Build the exact tagged revision
+        env:
+          HERMES_BUILD_IDENTITY: ${{ github.sha }}
+        run: cargo build --locked --release --bins
+      - name: Package
+        run: |
+          mkdir package
+          printf '%s\n' '${{ github.sha }}' > package/BUILD_IDENTITY
+          cp target/release/hermes target/release/hermesd hermes.zsh LICENSE README.md package/
+          cp -R shells docs spec scripts package/
+          tar -czf "hermes-${{ github.ref_name }}-${{ matrix.artifact }}.tar.gz" -C package .
+          shasum -a 256 "hermes-${{ github.ref_name }}-${{ matrix.artifact }}.tar.gz" > "hermes-${{ github.ref_name }}-${{ matrix.artifact }}.tar.gz.sha256"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact }}
+          path: hermes-*.tar.gz*
+
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@1.85.0
+      - run: |
+          sudo apt-get update && sudo apt-get install -y jq zsh fzf
+          go install github.com/x-motemen/ghq@v1.9.4
+          echo "$(go env GOPATH)/bin" >> "$GITHUB_PATH"
+      - run: cargo build --locked --release --bins
+      - run: HERMES_BIN="$PWD/target/release/hermes" tests/daemon/lifecycle.sh
+      - run: HERMES_BIN="$PWD/target/release/hermes" tests/history/stress.sh
+      - run: HERMES_BIN="$PWD/target/release/hermes" tests/config/cache.sh
+      - run: HERMES_BIN="$PWD/target/release/hermes" tests/zsh/fallback.sh
+      - run: HERMES_BIN="$PWD/target/release/hermes" tests/features/completion.sh
+      - run: HERMES_BIN="$PWD/target/release/hermes" tests/release/matrix.sh
+
+  benchmark:
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@1.85.0
+      - run: brew install hyperfine
+      - run: cargo build --locked --release --bins
+      - run: HERMES_BIN="$PWD/target/release/hermes" scripts/benchmark.sh
+      - uses: actions/upload-artifact@v4
+        with:
+          name: performance-results
+          path: |
+            spec/benchmark-results/*
+            spec/performance-budgets.json
+            spec/performance-results.md
+
+  publish:
+    needs: [build, verify, benchmark]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+          merge-multiple: true
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: artifacts/*
+          generate_release_notes: true

@@ -1,0 +1,8 @@
+completions:
+  - name: fixture completion
+    patterns:
+      - "^fixture $"
+    sourceCommand: "printf 'alpha\\nbeta\\n'"
+    options:
+      --multi: true
+      --prompt: "Fixture> "

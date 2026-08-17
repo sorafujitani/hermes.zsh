@@ -1,0 +1,66 @@
+{
+  "product": "hermes.zsh",
+  "interfaceVersion": 1,
+  "cliModes": [
+    "pid", "chdir", "ghq-list", "snippet-list", "auto-snippet",
+    "insert-snippet", "preprompt", "preprompt-snippet", "next-placeholder",
+    "completion", "history-log",
+    "history-query", "history-delete", "history-export", "history-import",
+    "history-fzf-config", "server-run", "server-start", "server-stop",
+    "server-restart", "server-status"
+  ],
+  "zsh": {
+    "widgets": [
+      "hermes-auto-snippet", "hermes-auto-snippet-and-accept-line",
+      "hermes-completion", "hermes-ghq-cd", "hermes-history-selection",
+      "hermes-insert-snippet", "hermes-insert-space", "hermes-preprompt",
+      "hermes-preprompt-snippet", "hermes-smart-history-selection",
+      "hermes-snippet-next-placeholder", "hermes-toggle-auto-snippet"
+    ],
+    "functions": [
+      "hermes-bind-default-keys", "hermes-call-client-and-fallback",
+      "hermes-enable-sock", "hermes-ensure-loaded", "hermes-history-hooks",
+      "hermes-init", "hermes-lazy-widget-dispatch", "hermes-preload",
+      "hermes-preprompt-hooks", "hermes-register-lazy-widget",
+      "hermes-register-lazy-widgets", "hermes-run-lazy-fallback",
+      "hermes-server"
+    ]
+  },
+  "environment": [
+    "HERMES_AUTO_SNIPPET_FALLBACK", "HERMES_CLIENT_TIMEOUT_SECONDS",
+    "HERMES_COMPLETION_FALLBACK", "HERMES_CONFIG",
+    "HERMES_DEFAULT_FZF_OPTIONS", "HERMES_DISABLE_AUTOMATIC_WORKSPACE_LOOKUP",
+    "HERMES_DISABLE_BUILTIN_COMPLETION", "HERMES_DISABLE_DAEMON",
+    "HERMES_DIRECT_FALLBACK", "HERMES_ENABLE", "HERMES_ENABLE_FZF_TMUX",
+    "HERMES_FZF_COMMAND", "HERMES_FZF_TMUX_OPTIONS",
+    "HERMES_GHQ_CD_DIR", "HERMES_GIT_CAT", "HERMES_GIT_TREE",
+    "HERMES_HISTORY_LIMIT", "HERMES_HISTORY_SESSION_ID", "HERMES_HOME",
+    "HERMES_LOCAL_CONFIG_PATH", "HERMES_PREPROMPT_BUFFER",
+    "HERMES_PREPROMPT_CURSOR", "HERMES_PREPROMPT_RAW", "HERMES_ROOT",
+    "HERMES_RUNTIME_DIR", "HERMES_SESSION_ID", "HERMES_SHELL"
+  ],
+  "config": {
+    "fields": [
+      "snippets[].name", "snippets[].keyword", "snippets[].snippet",
+      "snippets[].context.global", "snippets[].context.buffer",
+      "snippets[].context.lbuffer", "snippets[].context.rbuffer",
+      "snippets[].evaluate", "completions[].name", "completions[].patterns",
+      "completions[].excludePatterns", "completions[].sourceCommand",
+      "completions[].preview", "completions[].callback",
+      "completions[].callbackZero",
+      "completions[].options", "history.defaultScope", "history.redact",
+      "history.keymap.deleteSoft", "history.keymap.deleteHard",
+      "history.keymap.toggleScope", "history.keymap.togglePreview",
+      "history.fzfCommand", "history.fzfOptions"
+    ]
+  },
+  "coverage": {
+    "cliModes": "Rust unit tests and tests/daemon/lifecycle.sh",
+    "zshWidgetsAndFunctions": "tests/zsh/smoke.zsh and tests/zsh/fallback.sh",
+    "environment": "tests/config/cache.sh",
+    "configFields": "hermes-config unit tests and config integration tests",
+    "gitCompletions": "spec/git-completions.json and tests/features/completion.sh",
+    "history": "hermes-history unit tests and tests/history/stress.sh"
+  },
+  "v1Exclusions": ["fish shell integration", "Fish YAML history import"]
+}

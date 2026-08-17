@@ -1,0 +1,16 @@
+{
+  "capturedAt": "2026-08-17T08:07:41Z",
+  "hardware": "Darwin fujitanis-MacBook-Pro.local 23.6.0 Darwin Kernel Version 23.6.0: Thu Dec 19 20:47:53 PST 2024; root:xnu-10063.141.1.703.2~1/RELEASE_ARM64_T6030 arm64 arm Darwin",
+  "rust": "rustc 1.85.0 (4d91de4e4 2025-02-17)",
+  "dataset": {
+    "historyRows": 100000,
+    "queryLimit": 1000
+  },
+  "results": {
+    "shellStartupP50Ms": 7.1533164199999995,
+    "coldRequestP50Ms": 29.76221886,
+    "warmRequestP50Ms": 3.0721315799999993,
+    "daemonIdleRssMiB": 3.71875,
+    "largeHistoryQueryP50Ms": 65.59477666000001
+  }
+}

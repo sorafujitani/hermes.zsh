@@ -1,0 +1,412 @@
+{
+  "schemaVersion": 1,
+  "sources": [
+    {
+      "name": "git add",
+      "patterns": [
+        "^git add(?: .*)? $"
+      ],
+      "excludePatterns": [],
+      "sourceCommand": "git -c color.status=always status --short",
+      "callback": "perl -ne 'print substr($_, 3)'",
+      "callbackZero": false,
+      "optionsRendered": "--bind=\"ctrl-d:preview-half-page-down,ctrl-u:preview-half-page-up,?:toggle-preview\" --expect=\"alt-enter\" --preview=\"! git diff --exit-code --color=always -- {-1}|| ! git diff --exit-code --cached --color=always -- {-1}|| cat {-1} 2>/dev/null|| tree {-1} 2>/dev/null\" --ansi --height='80%' --print0 --no-separator --multi --no-sort --prompt='Git Add Files> '"
+    },
+    {
+      "name": "git diff files",
+      "patterns": [
+        "^git diff(?=.* -- ) .* $"
+      ],
+      "excludePatterns": [
+        "^git diff.* [^-].* -- ",
+        " --no-index "
+      ],
+      "sourceCommand": "git -c color.status=always status --short",
+      "callback": "perl -ne 'print substr($_, 3)'",
+      "callbackZero": false,
+      "optionsRendered": "--bind=\"ctrl-d:preview-half-page-down,ctrl-u:preview-half-page-up,?:toggle-preview\" --expect=\"alt-enter\" --preview=\"! git diff --exit-code --color=always -- {-1}|| ! git diff --exit-code --cached --color=always -- {-1}|| cat {-1} 2>/dev/null|| tree {-1} 2>/dev/null\" --ansi --height='80%' --print0 --no-separator --multi --no-sort --prompt='Git Diff Files> '"
+    },
+    {
+      "name": "git diff branch files",
+      "patterns": [
+        "^git diff(?=.* -- ) .* $",
+        "^git diff(?=.* --no-index ) .* $"
+      ],
+      "excludePatterns": [],
+      "sourceCommand": "git ls-files -z",
+      "callback": null,
+      "callbackZero": false,
+      "optionsRendered": "--bind=\"ctrl-d:preview-half-page-down,ctrl-u:preview-half-page-up,?:toggle-preview\" --expect=\"alt-enter\" --preview=\"cat {}\" --ansi --height='80%' --print0 --no-separator --multi --prompt='Git Diff Branch Files> ' --read0"
+    },
+    {
+      "name": "git diff",
+      "patterns": [
+        "^git diff(?: .*)? $"
+      ],
+      "excludePatterns": [],
+      "sourceCommand": "git for-each-ref refs/heads refs/remotes --color=always --format='%(color:green)[branch] %(color:magenta)%(refname:short)%09%(color:yellow)%(authordate:short)%09%(color:blue)[%(authorname)]' 2> /dev/null | column -t -s $'\\t'",
+      "callback": "awk '{print $2}'",
+      "callbackZero": false,
+      "optionsRendered": "--bind=\"ctrl-b:reload(git for-each-ref refs/heads refs/remotes --color=always --format='%(color:green)[branch] %(color:magenta)%(refname:short)%09%(color:yellow)%(authordate:short)%09%(color:blue)[%(authorname)]' 2> /dev/null | column -t -s $'\\t'),ctrl-c:reload(git log --decorate --color=always --format='%C(green)[commit] %C(magenta)%h%x09%C(yellow)%cr%x09%C(blue)[%an]%x09%C(auto)%s%d' | column -t -s $'\\t'),ctrl-t:reload(git for-each-ref refs/tags --color=always --format='%(color:green)[tag] %(color:magenta)%(refname:short)%09%(color:yellow)%(authordate:short)%09%(color:blue)[%(authorname)]' 2> /dev/null | column -t -s $'\\t'),ctrl-r:reload(git reflog --decorate --color=always --format='%C(green)[reflog] %C(magenta)%h%x09%C(yellow)%cr%x09%C(blue)[%an]%x09%C(auto)%s%d' 2> /dev/null | column -t -s $'\\t')\" --expect=\"alt-enter\" --preview=\"if [[ {1} == '[branch]' ]]; then;git log {2} --decorate --pretty='format:%C(yellow)%h %C(green)%cd %C(reset)%s%C(red)%d %C(cyan)[%an]' --date=iso --graph --color=always;elif [[ {1} == '[tag]' ]]; then;git log {2} --pretty='format:%C(yellow)%h %C(green)%cd %C(reset)%s%C(red)%d %C(cyan)[%an]' --date=iso --graph --color=always;elif [[ {1} == '[commit]' || {1} == '[reflog]' ]]; then;git show --color=always {2};fi\" --ansi --height='80%' --print0 --no-separator --header='C-b: branch, C-c: commit, C-t: tag, C-r: reflog' --preview-window='down' --multi --prompt='Git Diff> '"
+    },
+    {
+      "name": "git commit",
+      "patterns": [
+        "^git commit(?: .*)? -[cC] $",
+        "^git commit(?: .*)? --fixup[= ](?:amend:|reword:)?$",
+        "^git commit(?: .*)? --(?:(?:reuse|reedit)-message|squash)[= ]$"
+      ],
+      "excludePatterns": [
+        " -- "
+      ],
+      "sourceCommand": "git log --decorate --color=always --format='%C(green)[commit] %C(magenta)%h%x09%C(yellow)%cr%x09%C(blue)[%an]%x09%C(auto)%s%d' | column -t -s $'\\t'",
+      "callback": "awk '{print $2}'",
+      "callbackZero": false,
+      "optionsRendered": "--bind=\"ctrl-d:preview-half-page-down,ctrl-u:preview-half-page-up,?:toggle-preview\" --expect=\"alt-enter\" --preview=\"git show --color=always {2}\" --ansi --height='80%' --print0 --no-separator --prompt='Git Commit> ' --no-sort"
+    },
+    {
+      "name": "git commit files",
+      "patterns": [
+        "^git commit(?: .*)? $"
+      ],
+      "excludePatterns": [
+        " -[mF] $",
+        " --(?:author|date|template|trailer) $"
+      ],
+      "sourceCommand": "git -c color.status=always status --short",
+      "callback": "perl -ne 'print substr($_, 3)'",
+      "callbackZero": false,
+      "optionsRendered": "--bind=\"ctrl-d:preview-half-page-down,ctrl-u:preview-half-page-up,?:toggle-preview\" --expect=\"alt-enter\" --preview=\"! git diff --exit-code --color=always -- {-1}|| ! git diff --exit-code --cached --color=always -- {-1}|| cat {-1} 2>/dev/null|| tree {-1} 2>/dev/null\" --ansi --height='80%' --print0 --no-separator --multi --no-sort --prompt='Git Commit Files> '"
+    },
+    {
+      "name": "git checkout branch files",
+      "patterns": [
+        "^git checkout(?=.*(?<! (?:-[bBt]|--orphan|--track|--conflict|--pathspec-from-file)) [^-]) .* $"
+      ],
+      "excludePatterns": [
+        " --(?:conflict|pathspec-from-file) $"
+      ],
+      "sourceCommand": "git ls-files -z",
+      "callback": null,
+      "callbackZero": false,
+      "optionsRendered": "--bind=\"ctrl-d:preview-half-page-down,ctrl-u:preview-half-page-up,?:toggle-preview\" --expect=\"alt-enter\" --preview=\"cat {}\" --ansi --height='80%' --print0 --no-separator --multi --prompt='Git Checkout Branch Files> ' --read0"
+    },
+    {
+      "name": "git checkout",
+      "patterns": [
+        "^git checkout(?: .*)? (?:--track=)?$"
+      ],
+      "excludePatterns": [
+        " -- ",
+        " --(?:conflict|pathspec-from-file) $"
+      ],
+      "sourceCommand": "git for-each-ref refs/heads refs/remotes --color=always --format='%(color:green)[branch] %(color:magenta)%(refname:short)%09%(color:yellow)%(authordate:short)%09%(color:blue)[%(authorname)]' 2> /dev/null | column -t -s $'\\t'",
+      "callback": "awk '{print $2}'",
+      "callbackZero": false,
+      "optionsRendered": "--bind=\"ctrl-b:reload(git for-each-ref refs/heads refs/remotes --color=always --format='%(color:green)[branch] %(color:magenta)%(refname:short)%09%(color:yellow)%(authordate:short)%09%(color:blue)[%(authorname)]' 2> /dev/null | column -t -s $'\\t'),ctrl-c:reload(git log --decorate --color=always --format='%C(green)[commit] %C(magenta)%h%x09%C(yellow)%cr%x09%C(blue)[%an]%x09%C(auto)%s%d' | column -t -s $'\\t'),ctrl-t:reload(git for-each-ref refs/tags --color=always --format='%(color:green)[tag] %(color:magenta)%(refname:short)%09%(color:yellow)%(authordate:short)%09%(color:blue)[%(authorname)]' 2> /dev/null | column -t -s $'\\t'),ctrl-r:reload(git reflog --decorate --color=always --format='%C(green)[reflog] %C(magenta)%h%x09%C(yellow)%cr%x09%C(blue)[%an]%x09%C(auto)%s%d' 2> /dev/null | column -t -s $'\\t')\" --expect=\"alt-enter\" --preview=\"if [[ {1} == '[branch]' ]]; then;git log {2} --decorate --pretty='format:%C(yellow)%h %C(green)%cd %C(reset)%s%C(red)%d %C(cyan)[%an]' --date=iso --graph --color=always;elif [[ {1} == '[tag]' ]]; then;git log {2} --pretty='format:%C(yellow)%h %C(green)%cd %C(reset)%s%C(red)%d %C(cyan)[%an]' --date=iso --graph --color=always;elif [[ {1} == '[commit]' || {1} == '[reflog]' ]]; then;git show --color=always {2};fi\" --ansi --height='80%' --print0 --no-separator --header='C-b: branch, C-c: commit, C-t: tag, C-r: reflog' --preview-window='down' --prompt='Git Checkout> '"
+    },
+    {
+      "name": "git checkout files",
+      "patterns": [
+        "^git checkout(?: .*)? $"
+      ],
+      "excludePatterns": [
+        " --(?:conflict|pathspec-from-file) $"
+      ],
+      "sourceCommand": "git -c color.status=always status --short",
+      "callback": "perl -ne 'print substr($_, 3)'",
+      "callbackZero": false,
+      "optionsRendered": "--bind=\"ctrl-d:preview-half-page-down,ctrl-u:preview-half-page-up,?:toggle-preview\" --expect=\"alt-enter\" --preview=\"! git diff --exit-code --color=always -- {-1}|| ! git diff --exit-code --cached --color=always -- {-1}|| cat {-1} 2>/dev/null|| tree {-1} 2>/dev/null\" --ansi --height='80%' --print0 --no-separator --prompt='Git Checkout Files> ' --multi --no-sort"
+    },
+    {
+      "name": "git delete branch",
+      "patterns": [
+        "^git branch (?:-d|-D)(?: .*)? $"
+      ],
+      "excludePatterns": [],
+      "sourceCommand": "git for-each-ref refs/heads refs/remotes --color=always --format='%(color:green)[branch] %(color:magenta)%(refname:short)%09%(color:yellow)%(authordate:short)%09%(color:blue)[%(authorname)]' 2> /dev/null | column -t -s $'\\t'",
+      "callback": "awk '{print $2}'",
+      "callbackZero": false,
+      "optionsRendered": "--bind=\"ctrl-d:preview-half-page-down,ctrl-u:preview-half-page-up,?:toggle-preview\" --expect=\"alt-enter\" --preview=\"if [[ {1} == '[branch]' ]]; then;git log {2} --decorate --pretty='format:%C(yellow)%h %C(green)%cd %C(reset)%s%C(red)%d %C(cyan)[%an]' --date=iso --graph --color=always;elif [[ {1} == '[tag]' ]]; then;git log {2} --pretty='format:%C(yellow)%h %C(green)%cd %C(reset)%s%C(red)%d %C(cyan)[%an]' --date=iso --graph --color=always;elif [[ {1} == '[commit]' || {1} == '[reflog]' ]]; then;git show --color=always {2};fi\" --ansi --height='80%' --print0 --no-separator --prompt='Git Delete Branch> ' --multi"
+    },
+    {
+      "name": "git reset branch files",
+      "patterns": [
+        "^git reset(?=.*(?<! --pathspec-from-file) [^-]) .* $"
+      ],
+      "excludePatterns": [
+        " --pathspec-from-file $"
+      ],
+      "sourceCommand": "git ls-files -z",
+      "callback": null,
+      "callbackZero": false,
+      "optionsRendered": "--bind=\"ctrl-d:preview-half-page-down,ctrl-u:preview-half-page-up,?:toggle-preview\" --expect=\"alt-enter\" --preview=\"cat {}\" --ansi --height='80%' --print0 --no-separator --prompt='Git Reset Branch Files> ' --multi --read0"
+    },
+    {
+      "name": "git reset",
+      "patterns": [
+        "^git reset(?: .*)? $"
+      ],
+      "excludePatterns": [
+        " -- ",
+        " --pathspec-from-file $"
+      ],
+      "sourceCommand": "git log --decorate --color=always --format='%C(green)[commit] %C(magenta)%h%x09%C(yellow)%cr%x09%C(blue)[%an]%x09%C(auto)%s%d' | column -t -s $'\\t'",
+      "callback": "awk '{print $2}'",
+      "callbackZero": false,
+      "optionsRendered": "--bind=\"ctrl-b:reload(git for-each-ref refs/heads refs/remotes --color=always --format='%(color:green)[branch] %(color:magenta)%(refname:short)%09%(color:yellow)%(authordate:short)%09%(color:blue)[%(authorname)]' 2> /dev/null | column -t -s $'\\t'),ctrl-c:reload(git log --decorate --color=always --format='%C(green)[commit] %C(magenta)%h%x09%C(yellow)%cr%x09%C(blue)[%an]%x09%C(auto)%s%d' | column -t -s $'\\t'),ctrl-t:reload(git for-each-ref refs/tags --color=always --format='%(color:green)[tag] %(color:magenta)%(refname:short)%09%(color:yellow)%(authordate:short)%09%(color:blue)[%(authorname)]' 2> /dev/null | column -t -s $'\\t'),ctrl-r:reload(git reflog --decorate --color=always --format='%C(green)[reflog] %C(magenta)%h%x09%C(yellow)%cr%x09%C(blue)[%an]%x09%C(auto)%s%d' 2> /dev/null | column -t -s $'\\t')\" --expect=\"alt-enter\" --preview=\"if [[ {1} == '[branch]' ]]; then;git log {2} --decorate --pretty='format:%C(yellow)%h %C(green)%cd %C(reset)%s%C(red)%d %C(cyan)[%an]' --date=iso --graph --color=always;elif [[ {1} == '[tag]' ]]; then;git log {2} --pretty='format:%C(yellow)%h %C(green)%cd %C(reset)%s%C(red)%d %C(cyan)[%an]' --date=iso --graph --color=always;elif [[ {1} == '[commit]' || {1} == '[reflog]' ]]; then;git show --color=always {2};fi\" --ansi --height='80%' --print0 --no-separator --header='C-b: branch, C-c: commit, C-t: tag, C-r: reflog' --preview-window='down' --prompt='Git Reset> '"
+    },
+    {
+      "name": "git reset files",
+      "patterns": [
+        "^git reset(?: .*)? $"
+      ],
+      "excludePatterns": [
+        " --pathspec-from-file $"
+      ],
+      "sourceCommand": "git -c color.status=always status --short",
+      "callback": "perl -ne 'print substr($_, 3)'",
+      "callbackZero": false,
+      "optionsRendered": "--bind=\"ctrl-d:preview-half-page-down,ctrl-u:preview-half-page-up,?:toggle-preview\" --expect=\"alt-enter\" --preview=\"! git diff --exit-code --color=always -- {-1}|| ! git diff --exit-code --cached --color=always -- {-1}|| cat {-1} 2>/dev/null|| tree {-1} 2>/dev/null\" --ansi --height='80%' --print0 --no-separator --prompt='Git Reset Files> ' --multi --no-sort"
+    },
+    {
+      "name": "git switch",
+      "patterns": [
+        "^git switch(?: .*)? $"
+      ],
+      "excludePatterns": [],
+      "sourceCommand": "git for-each-ref refs/heads refs/remotes --color=always --format='%(color:green)[branch] %(color:magenta)%(refname:short)%09%(color:yellow)%(authordate:short)%09%(color:blue)[%(authorname)]' 2> /dev/null | column -t -s $'\\t'",
+      "callback": "awk '{print $2}'",
+      "callbackZero": false,
+      "optionsRendered": "--bind=\"ctrl-b:reload(git for-each-ref refs/heads refs/remotes --color=always --format='%(color:green)[branch] %(color:magenta)%(refname:short)%09%(color:yellow)%(authordate:short)%09%(color:blue)[%(authorname)]' 2> /dev/null | column -t -s $'\\t'),ctrl-c:reload(git log --decorate --color=always --format='%C(green)[commit] %C(magenta)%h%x09%C(yellow)%cr%x09%C(blue)[%an]%x09%C(auto)%s%d' | column -t -s $'\\t'),ctrl-t:reload(git for-each-ref refs/tags --color=always --format='%(color:green)[tag] %(color:magenta)%(refname:short)%09%(color:yellow)%(authordate:short)%09%(color:blue)[%(authorname)]' 2> /dev/null | column -t -s $'\\t'),ctrl-r:reload(git reflog --decorate --color=always --format='%C(green)[reflog] %C(magenta)%h%x09%C(yellow)%cr%x09%C(blue)[%an]%x09%C(auto)%s%d' 2> /dev/null | column -t -s $'\\t')\" --expect=\"alt-enter\" --preview=\"if [[ {1} == '[branch]' ]]; then;git log {2} --decorate --pretty='format:%C(yellow)%h %C(green)%cd %C(reset)%s%C(red)%d %C(cyan)[%an]' --date=iso --graph --color=always;elif [[ {1} == '[tag]' ]]; then;git log {2} --pretty='format:%C(yellow)%h %C(green)%cd %C(reset)%s%C(red)%d %C(cyan)[%an]' --date=iso --graph --color=always;elif [[ {1} == '[commit]' || {1} == '[reflog]' ]]; then;git show --color=always {2};fi\" --ansi --height='80%' --print0 --no-separator --header='C-b: branch, C-c: commit, C-t: tag, C-r: reflog' --preview-window='down' --prompt='Git Switch> '"
+    },
+    {
+      "name": "git restore source",
+      "patterns": [
+        "^git restore(?: .*)? (?:-s |--source[= ])$"
+      ],
+      "excludePatterns": [
+        " -- "
+      ],
+      "sourceCommand": "git for-each-ref refs/heads refs/remotes --color=always --format='%(color:green)[branch] %(color:magenta)%(refname:short)%09%(color:yellow)%(authordate:short)%09%(color:blue)[%(authorname)]' 2> /dev/null | column -t -s $'\\t'",
+      "callback": "awk '{print $2}'",
+      "callbackZero": false,
+      "optionsRendered": "--bind=\"ctrl-b:reload(git for-each-ref refs/heads refs/remotes --color=always --format='%(color:green)[branch] %(color:magenta)%(refname:short)%09%(color:yellow)%(authordate:short)%09%(color:blue)[%(authorname)]' 2> /dev/null | column -t -s $'\\t'),ctrl-c:reload(git log --decorate --color=always --format='%C(green)[commit] %C(magenta)%h%x09%C(yellow)%cr%x09%C(blue)[%an]%x09%C(auto)%s%d' | column -t -s $'\\t'),ctrl-t:reload(git for-each-ref refs/tags --color=always --format='%(color:green)[tag] %(color:magenta)%(refname:short)%09%(color:yellow)%(authordate:short)%09%(color:blue)[%(authorname)]' 2> /dev/null | column -t -s $'\\t'),ctrl-r:reload(git reflog --decorate --color=always --format='%C(green)[reflog] %C(magenta)%h%x09%C(yellow)%cr%x09%C(blue)[%an]%x09%C(auto)%s%d' 2> /dev/null | column -t -s $'\\t')\" --expect=\"alt-enter\" --preview=\"if [[ {1} == '[branch]' ]]; then;git log {2} --decorate --pretty='format:%C(yellow)%h %C(green)%cd %C(reset)%s%C(red)%d %C(cyan)[%an]' --date=iso --graph --color=always;elif [[ {1} == '[tag]' ]]; then;git log {2} --pretty='format:%C(yellow)%h %C(green)%cd %C(reset)%s%C(red)%d %C(cyan)[%an]' --date=iso --graph --color=always;elif [[ {1} == '[commit]' || {1} == '[reflog]' ]]; then;git show --color=always {2};fi\" --ansi --height='80%' --print0 --no-separator --header='C-b: branch, C-c: commit, C-t: tag, C-r: reflog' --preview-window='down' --prompt='Git Restore Source> '"
+    },
+    {
+      "name": "git restore source files",
+      "patterns": [
+        "^git restore(?=.* (?:-s |--source[= ])) .* $"
+      ],
+      "excludePatterns": [],
+      "sourceCommand": "git ls-files -z",
+      "callback": null,
+      "callbackZero": false,
+      "optionsRendered": "--bind=\"ctrl-d:preview-half-page-down,ctrl-u:preview-half-page-up,?:toggle-preview\" --expect=\"alt-enter\" --preview=\"cat {}\" --ansi --height='80%' --print0 --no-separator --prompt='Git Restore Files> ' --multi --read0"
+    },
+    {
+      "name": "git restore files",
+      "patterns": [
+        "^git restore(?: .*)? $"
+      ],
+      "excludePatterns": [],
+      "sourceCommand": "git -c color.status=always status --short",
+      "callback": "perl -ne 'print substr($_, 3)'",
+      "callbackZero": false,
+      "optionsRendered": "--bind=\"ctrl-d:preview-half-page-down,ctrl-u:preview-half-page-up,?:toggle-preview\" --expect=\"alt-enter\" --preview=\"! git diff --exit-code --color=always -- {-1}|| ! git diff --exit-code --cached --color=always -- {-1}|| cat {-1} 2>/dev/null|| tree {-1} 2>/dev/null\" --ansi --height='80%' --print0 --no-separator --prompt='Git Restore Files> ' --multi --no-sort"
+    },
+    {
+      "name": "git rebase branch",
+      "patterns": [
+        "^git rebase(?=.*(?<! (?:-[xsX]|--exec|--strategy(?:-options)?|--onto)) [^-]) .* $"
+      ],
+      "excludePatterns": [],
+      "sourceCommand": "git for-each-ref refs/heads refs/remotes --color=always --format='%(color:green)[branch] %(color:magenta)%(refname:short)%09%(color:yellow)%(authordate:short)%09%(color:blue)[%(authorname)]' 2> /dev/null | column -t -s $'\\t'",
+      "callback": "awk '{print $2}'",
+      "callbackZero": false,
+      "optionsRendered": "--bind=\"ctrl-b:reload(git for-each-ref refs/heads refs/remotes --color=always --format='%(color:green)[branch] %(color:magenta)%(refname:short)%09%(color:yellow)%(authordate:short)%09%(color:blue)[%(authorname)]' 2> /dev/null | column -t -s $'\\t'),ctrl-c:reload(git log --decorate --color=always --format='%C(green)[commit] %C(magenta)%h%x09%C(yellow)%cr%x09%C(blue)[%an]%x09%C(auto)%s%d' | column -t -s $'\\t'),ctrl-t:reload(git for-each-ref refs/tags --color=always --format='%(color:green)[tag] %(color:magenta)%(refname:short)%09%(color:yellow)%(authordate:short)%09%(color:blue)[%(authorname)]' 2> /dev/null | column -t -s $'\\t'),ctrl-r:reload(git reflog --decorate --color=always --format='%C(green)[reflog] %C(magenta)%h%x09%C(yellow)%cr%x09%C(blue)[%an]%x09%C(auto)%s%d' 2> /dev/null | column -t -s $'\\t')\" --expect=\"alt-enter\" --preview=\"if [[ {1} == '[branch]' ]]; then;git log {2} --decorate --pretty='format:%C(yellow)%h %C(green)%cd %C(reset)%s%C(red)%d %C(cyan)[%an]' --date=iso --graph --color=always;elif [[ {1} == '[tag]' ]]; then;git log {2} --pretty='format:%C(yellow)%h %C(green)%cd %C(reset)%s%C(red)%d %C(cyan)[%an]' --date=iso --graph --color=always;elif [[ {1} == '[commit]' || {1} == '[reflog]' ]]; then;git show --color=always {2};fi\" --ansi --height='80%' --print0 --no-separator --header='C-b: branch, C-c: commit, C-t: tag, C-r: reflog' --preview-window='down' --prompt='Git Rebase Branch> '"
+    },
+    {
+      "name": "git rebase",
+      "patterns": [
+        "^git rebase(?: .*)? (?:--onto[= ])?$"
+      ],
+      "excludePatterns": [
+        " -[xsX] $",
+        " --(?:exec|strategy(?:-option)?) $"
+      ],
+      "sourceCommand": "git log --decorate --color=always --format='%C(green)[commit] %C(magenta)%h%x09%C(yellow)%cr%x09%C(blue)[%an]%x09%C(auto)%s%d' | column -t -s $'\\t'",
+      "callback": "awk '{print $2}'",
+      "callbackZero": false,
+      "optionsRendered": "--bind=\"ctrl-b:reload(git for-each-ref refs/heads refs/remotes --color=always --format='%(color:green)[branch] %(color:magenta)%(refname:short)%09%(color:yellow)%(authordate:short)%09%(color:blue)[%(authorname)]' 2> /dev/null | column -t -s $'\\t'),ctrl-c:reload(git log --decorate --color=always --format='%C(green)[commit] %C(magenta)%h%x09%C(yellow)%cr%x09%C(blue)[%an]%x09%C(auto)%s%d' | column -t -s $'\\t'),ctrl-t:reload(git for-each-ref refs/tags --color=always --format='%(color:green)[tag] %(color:magenta)%(refname:short)%09%(color:yellow)%(authordate:short)%09%(color:blue)[%(authorname)]' 2> /dev/null | column -t -s $'\\t'),ctrl-r:reload(git reflog --decorate --color=always --format='%C(green)[reflog] %C(magenta)%h%x09%C(yellow)%cr%x09%C(blue)[%an]%x09%C(auto)%s%d' 2> /dev/null | column -t -s $'\\t')\" --expect=\"alt-enter\" --preview=\"if [[ {1} == '[branch]' ]]; then;git log {2} --decorate --pretty='format:%C(yellow)%h %C(green)%cd %C(reset)%s%C(red)%d %C(cyan)[%an]' --date=iso --graph --color=always;elif [[ {1} == '[tag]' ]]; then;git log {2} --pretty='format:%C(yellow)%h %C(green)%cd %C(reset)%s%C(red)%d %C(cyan)[%an]' --date=iso --graph --color=always;elif [[ {1} == '[commit]' || {1} == '[reflog]' ]]; then;git show --color=always {2};fi\" --ansi --height='80%' --print0 --no-separator --header='C-b: branch, C-c: commit, C-t: tag, C-r: reflog' --preview-window='down' --prompt='Git Rebase> '"
+    },
+    {
+      "name": "git merge branch",
+      "patterns": [
+        "^git merge(?: .*)? --into-name[= ]$"
+      ],
+      "excludePatterns": [],
+      "sourceCommand": "git for-each-ref refs/heads refs/remotes --color=always --format='%(color:green)[branch] %(color:magenta)%(refname:short)%09%(color:yellow)%(authordate:short)%09%(color:blue)[%(authorname)]' 2> /dev/null | column -t -s $'\\t'",
+      "callback": "awk '{print $2}'",
+      "callbackZero": false,
+      "optionsRendered": "--bind=\"ctrl-b:reload(git for-each-ref refs/heads refs/remotes --color=always --format='%(color:green)[branch] %(color:magenta)%(refname:short)%09%(color:yellow)%(authordate:short)%09%(color:blue)[%(authorname)]' 2> /dev/null | column -t -s $'\\t'),ctrl-c:reload(git log --decorate --color=always --format='%C(green)[commit] %C(magenta)%h%x09%C(yellow)%cr%x09%C(blue)[%an]%x09%C(auto)%s%d' | column -t -s $'\\t'),ctrl-t:reload(git for-each-ref refs/tags --color=always --format='%(color:green)[tag] %(color:magenta)%(refname:short)%09%(color:yellow)%(authordate:short)%09%(color:blue)[%(authorname)]' 2> /dev/null | column -t -s $'\\t'),ctrl-r:reload(git reflog --decorate --color=always --format='%C(green)[reflog] %C(magenta)%h%x09%C(yellow)%cr%x09%C(blue)[%an]%x09%C(auto)%s%d' 2> /dev/null | column -t -s $'\\t')\" --expect=\"alt-enter\" --preview=\"if [[ {1} == '[branch]' ]]; then;git log {2} --decorate --pretty='format:%C(yellow)%h %C(green)%cd %C(reset)%s%C(red)%d %C(cyan)[%an]' --date=iso --graph --color=always;elif [[ {1} == '[tag]' ]]; then;git log {2} --pretty='format:%C(yellow)%h %C(green)%cd %C(reset)%s%C(red)%d %C(cyan)[%an]' --date=iso --graph --color=always;elif [[ {1} == '[commit]' || {1} == '[reflog]' ]]; then;git show --color=always {2};fi\" --ansi --height='80%' --print0 --no-separator --header='C-b: branch, C-c: commit, C-t: tag, C-r: reflog' --preview-window='down' --prompt='Git Merge Branch> '"
+    },
+    {
+      "name": "git merge",
+      "patterns": [
+        "git merge(?: .*)? $"
+      ],
+      "excludePatterns": [
+        " -[mFsX] $",
+        " --(?:file|strategy(?:-option)?) $"
+      ],
+      "sourceCommand": "git log --decorate --color=always --format='%C(green)[commit] %C(magenta)%h%x09%C(yellow)%cr%x09%C(blue)[%an]%x09%C(auto)%s%d' | column -t -s $'\\t'",
+      "callback": "awk '{print $2}'",
+      "callbackZero": false,
+      "optionsRendered": "--bind=\"ctrl-b:reload(git for-each-ref refs/heads refs/remotes --color=always --format='%(color:green)[branch] %(color:magenta)%(refname:short)%09%(color:yellow)%(authordate:short)%09%(color:blue)[%(authorname)]' 2> /dev/null | column -t -s $'\\t'),ctrl-c:reload(git log --decorate --color=always --format='%C(green)[commit] %C(magenta)%h%x09%C(yellow)%cr%x09%C(blue)[%an]%x09%C(auto)%s%d' | column -t -s $'\\t'),ctrl-t:reload(git for-each-ref refs/tags --color=always --format='%(color:green)[tag] %(color:magenta)%(refname:short)%09%(color:yellow)%(authordate:short)%09%(color:blue)[%(authorname)]' 2> /dev/null | column -t -s $'\\t'),ctrl-r:reload(git reflog --decorate --color=always --format='%C(green)[reflog] %C(magenta)%h%x09%C(yellow)%cr%x09%C(blue)[%an]%x09%C(auto)%s%d' 2> /dev/null | column -t -s $'\\t')\" --expect=\"alt-enter\" --preview=\"if [[ {1} == '[branch]' ]]; then;git log {2} --decorate --pretty='format:%C(yellow)%h %C(green)%cd %C(reset)%s%C(red)%d %C(cyan)[%an]' --date=iso --graph --color=always;elif [[ {1} == '[tag]' ]]; then;git log {2} --pretty='format:%C(yellow)%h %C(green)%cd %C(reset)%s%C(red)%d %C(cyan)[%an]' --date=iso --graph --color=always;elif [[ {1} == '[commit]' || {1} == '[reflog]' ]]; then;git show --color=always {2};fi\" --ansi --height='80%' --print0 --no-separator --header='C-b: branch, C-c: commit, C-t: tag, C-r: reflog' --preview-window='down' --prompt='Git Merge> '"
+    },
+    {
+      "name": "git stash",
+      "patterns": [
+        "git stash (?:apply|drop|pop|show)(?: .*)? $",
+        "git stash branch(?=.* [^-]) .* $"
+      ],
+      "excludePatterns": [],
+      "sourceCommand": "git stash list --color=always --format='%C(magenta)%gd%x09%C(yellow)%cr%x09%C(auto)%s' | column -t -s $'\\t'",
+      "callback": "awk '{print $1}'",
+      "callbackZero": false,
+      "optionsRendered": "--bind=\"ctrl-d:preview-half-page-down,ctrl-u:preview-half-page-up,?:toggle-preview\" --expect=\"alt-enter\" --preview=\"git show --color=always {1}\" --ansi --height='80%' --print0 --no-separator --prompt='Git Stash> '"
+    },
+    {
+      "name": "git stash branch",
+      "patterns": [
+        "git stash branch(?: .*)? $"
+      ],
+      "excludePatterns": [],
+      "sourceCommand": "git for-each-ref refs/heads refs/remotes --color=always --format='%(color:green)[branch] %(color:magenta)%(refname:short)%09%(color:yellow)%(authordate:short)%09%(color:blue)[%(authorname)]' 2> /dev/null | column -t -s $'\\t'",
+      "callback": "awk '{print $2}'",
+      "callbackZero": false,
+      "optionsRendered": "--bind=\"ctrl-b:reload(git for-each-ref refs/heads refs/remotes --color=always --format='%(color:green)[branch] %(color:magenta)%(refname:short)%09%(color:yellow)%(authordate:short)%09%(color:blue)[%(authorname)]' 2> /dev/null | column -t -s $'\\t'),ctrl-c:reload(git log --decorate --color=always --format='%C(green)[commit] %C(magenta)%h%x09%C(yellow)%cr%x09%C(blue)[%an]%x09%C(auto)%s%d' | column -t -s $'\\t'),ctrl-t:reload(git for-each-ref refs/tags --color=always --format='%(color:green)[tag] %(color:magenta)%(refname:short)%09%(color:yellow)%(authordate:short)%09%(color:blue)[%(authorname)]' 2> /dev/null | column -t -s $'\\t'),ctrl-r:reload(git reflog --decorate --color=always --format='%C(green)[reflog] %C(magenta)%h%x09%C(yellow)%cr%x09%C(blue)[%an]%x09%C(auto)%s%d' 2> /dev/null | column -t -s $'\\t')\" --expect=\"alt-enter\" --preview=\"if [[ {1} == '[branch]' ]]; then;git log {2} --decorate --pretty='format:%C(yellow)%h %C(green)%cd %C(reset)%s%C(red)%d %C(cyan)[%an]' --date=iso --graph --color=always;elif [[ {1} == '[tag]' ]]; then;git log {2} --pretty='format:%C(yellow)%h %C(green)%cd %C(reset)%s%C(red)%d %C(cyan)[%an]' --date=iso --graph --color=always;elif [[ {1} == '[commit]' || {1} == '[reflog]' ]]; then;git show --color=always {2};fi\" --ansi --height='80%' --print0 --no-separator --header='C-b: branch, C-c: commit, C-t: tag, C-r: reflog' --preview-window='down' --prompt='Git Stash Branch> '"
+    },
+    {
+      "name": "git stash push files",
+      "patterns": [
+        "git stash push(?: .*)? $"
+      ],
+      "excludePatterns": [],
+      "sourceCommand": "git -c color.status=always status --short",
+      "callback": "perl -ne 'print substr($_, 3)'",
+      "callbackZero": false,
+      "optionsRendered": "--bind=\"ctrl-d:preview-half-page-down,ctrl-u:preview-half-page-up,?:toggle-preview\" --expect=\"alt-enter\" --preview=\"! git diff --exit-code --color=always -- {-1}|| ! git diff --exit-code --cached --color=always -- {-1}|| cat {-1} 2>/dev/null|| tree {-1} 2>/dev/null\" --ansi --height='80%' --print0 --no-separator --multi --no-sort --prompt='Git Stash Push Files> '"
+    },
+    {
+      "name": "git log file",
+      "patterns": [
+        "^git log(?=.* -- ) .* $"
+      ],
+      "excludePatterns": [],
+      "sourceCommand": "git ls-files -z",
+      "callback": null,
+      "callbackZero": false,
+      "optionsRendered": "--bind=\"ctrl-d:preview-half-page-down,ctrl-u:preview-half-page-up,?:toggle-preview\" --expect=\"alt-enter\" --preview=\"cat {}\" --ansi --height='80%' --print0 --no-separator --prompt='Git Log File> ' --read0"
+    },
+    {
+      "name": "git log",
+      "patterns": [
+        "^git log(?: .*)? $"
+      ],
+      "excludePatterns": [
+        " --(?:skip|since|after|until|before|author|committer|date) $",
+        " --(?:branches|tags|remotes|glob|exclude|pretty|format) $",
+        " --grep(?:-reflog)? $",
+        " --(?:min|max)-parents $"
+      ],
+      "sourceCommand": "git for-each-ref refs/heads refs/remotes --color=always --format='%(color:green)[branch] %(color:magenta)%(refname:short)%09%(color:yellow)%(authordate:short)%09%(color:blue)[%(authorname)]' 2> /dev/null | column -t -s $'\\t'",
+      "callback": "awk '{print $2}'",
+      "callbackZero": false,
+      "optionsRendered": "--bind=\"ctrl-b:reload(git for-each-ref refs/heads refs/remotes --color=always --format='%(color:green)[branch] %(color:magenta)%(refname:short)%09%(color:yellow)%(authordate:short)%09%(color:blue)[%(authorname)]' 2> /dev/null | column -t -s $'\\t'),ctrl-c:reload(git log --decorate --color=always --format='%C(green)[commit] %C(magenta)%h%x09%C(yellow)%cr%x09%C(blue)[%an]%x09%C(auto)%s%d' | column -t -s $'\\t'),ctrl-t:reload(git for-each-ref refs/tags --color=always --format='%(color:green)[tag] %(color:magenta)%(refname:short)%09%(color:yellow)%(authordate:short)%09%(color:blue)[%(authorname)]' 2> /dev/null | column -t -s $'\\t'),ctrl-r:reload(git reflog --decorate --color=always --format='%C(green)[reflog] %C(magenta)%h%x09%C(yellow)%cr%x09%C(blue)[%an]%x09%C(auto)%s%d' 2> /dev/null | column -t -s $'\\t')\" --expect=\"alt-enter\" --preview=\"if [[ {1} == '[branch]' ]]; then;git log {2} --decorate --pretty='format:%C(yellow)%h %C(green)%cd %C(reset)%s%C(red)%d %C(cyan)[%an]' --date=iso --graph --color=always;elif [[ {1} == '[tag]' ]]; then;git log {2} --pretty='format:%C(yellow)%h %C(green)%cd %C(reset)%s%C(red)%d %C(cyan)[%an]' --date=iso --graph --color=always;elif [[ {1} == '[commit]' || {1} == '[reflog]' ]]; then;git show --color=always {2};fi\" --ansi --height='80%' --print0 --no-separator --header='C-b: branch, C-c: commit, C-t: tag, C-r: reflog' --preview-window='down' --prompt='Git Log> '"
+    },
+    {
+      "name": "git tag list commit",
+      "patterns": [
+        "^git tag(?=.* (?:-l|--list) )(?: .*)? --(?:(?:no-)?(?:contains|merged)|points-at) $"
+      ],
+      "excludePatterns": [],
+      "sourceCommand": "git log --decorate --color=always --format='%C(green)[commit] %C(magenta)%h%x09%C(yellow)%cr%x09%C(blue)[%an]%x09%C(auto)%s%d' | column -t -s $'\\t'",
+      "callback": "awk '{print $2}'",
+      "callbackZero": false,
+      "optionsRendered": "--bind=\"ctrl-b:reload(git for-each-ref refs/heads refs/remotes --color=always --format='%(color:green)[branch] %(color:magenta)%(refname:short)%09%(color:yellow)%(authordate:short)%09%(color:blue)[%(authorname)]' 2> /dev/null | column -t -s $'\\t'),ctrl-c:reload(git log --decorate --color=always --format='%C(green)[commit] %C(magenta)%h%x09%C(yellow)%cr%x09%C(blue)[%an]%x09%C(auto)%s%d' | column -t -s $'\\t'),ctrl-t:reload(git for-each-ref refs/tags --color=always --format='%(color:green)[tag] %(color:magenta)%(refname:short)%09%(color:yellow)%(authordate:short)%09%(color:blue)[%(authorname)]' 2> /dev/null | column -t -s $'\\t'),ctrl-r:reload(git reflog --decorate --color=always --format='%C(green)[reflog] %C(magenta)%h%x09%C(yellow)%cr%x09%C(blue)[%an]%x09%C(auto)%s%d' 2> /dev/null | column -t -s $'\\t')\" --expect=\"alt-enter\" --preview=\"if [[ {1} == '[branch]' ]]; then;git log {2} --decorate --pretty='format:%C(yellow)%h %C(green)%cd %C(reset)%s%C(red)%d %C(cyan)[%an]' --date=iso --graph --color=always;elif [[ {1} == '[tag]' ]]; then;git log {2} --pretty='format:%C(yellow)%h %C(green)%cd %C(reset)%s%C(red)%d %C(cyan)[%an]' --date=iso --graph --color=always;elif [[ {1} == '[commit]' || {1} == '[reflog]' ]]; then;git show --color=always {2};fi\" --ansi --height='80%' --print0 --no-separator --header='C-b: branch, C-c: commit, C-t: tag, C-r: reflog' --preview-window='down' --prompt='Git Tag List Commit> '"
+    },
+    {
+      "name": "git tag delete",
+      "patterns": [
+        "^git tag(?=.* (?:-d|--delete) )(?: .*)? $"
+      ],
+      "excludePatterns": [],
+      "sourceCommand": "git for-each-ref refs/tags --color=always --format='%(color:green)[tag] %(color:magenta)%(refname:short)%09%(color:yellow)%(authordate:short)%09%(color:blue)[%(authorname)]' 2> /dev/null | column -t -s $'\\t'",
+      "callback": "awk '{print $2}'",
+      "callbackZero": false,
+      "optionsRendered": "--bind=\"ctrl-b:reload(git for-each-ref refs/heads refs/remotes --color=always --format='%(color:green)[branch] %(color:magenta)%(refname:short)%09%(color:yellow)%(authordate:short)%09%(color:blue)[%(authorname)]' 2> /dev/null | column -t -s $'\\t'),ctrl-c:reload(git log --decorate --color=always --format='%C(green)[commit] %C(magenta)%h%x09%C(yellow)%cr%x09%C(blue)[%an]%x09%C(auto)%s%d' | column -t -s $'\\t'),ctrl-t:reload(git for-each-ref refs/tags --color=always --format='%(color:green)[tag] %(color:magenta)%(refname:short)%09%(color:yellow)%(authordate:short)%09%(color:blue)[%(authorname)]' 2> /dev/null | column -t -s $'\\t'),ctrl-r:reload(git reflog --decorate --color=always --format='%C(green)[reflog] %C(magenta)%h%x09%C(yellow)%cr%x09%C(blue)[%an]%x09%C(auto)%s%d' 2> /dev/null | column -t -s $'\\t')\" --expect=\"alt-enter\" --preview=\"if [[ {1} == '[branch]' ]]; then;git log {2} --decorate --pretty='format:%C(yellow)%h %C(green)%cd %C(reset)%s%C(red)%d %C(cyan)[%an]' --date=iso --graph --color=always;elif [[ {1} == '[tag]' ]]; then;git log {2} --pretty='format:%C(yellow)%h %C(green)%cd %C(reset)%s%C(red)%d %C(cyan)[%an]' --date=iso --graph --color=always;elif [[ {1} == '[commit]' || {1} == '[reflog]' ]]; then;git show --color=always {2};fi\" --ansi --height='80%' --print0 --no-separator --header='C-b: branch, C-c: commit, C-t: tag, C-r: reflog' --preview-window='down' --multi --prompt='Git Tag Delete> '"
+    },
+    {
+      "name": "git tag",
+      "patterns": [
+        "^git tag(?: .*)? $"
+      ],
+      "excludePatterns": [
+        " -[umF] $",
+        " --(?:local-user|format) $"
+      ],
+      "sourceCommand": "git for-each-ref refs/tags --color=always --format='%(color:green)[tag] %(color:magenta)%(refname:short)%09%(color:yellow)%(authordate:short)%09%(color:blue)[%(authorname)]' 2> /dev/null | column -t -s $'\\t'",
+      "callback": "awk '{print $2}'",
+      "callbackZero": false,
+      "optionsRendered": "--bind=\"ctrl-b:reload(git for-each-ref refs/heads refs/remotes --color=always --format='%(color:green)[branch] %(color:magenta)%(refname:short)%09%(color:yellow)%(authordate:short)%09%(color:blue)[%(authorname)]' 2> /dev/null | column -t -s $'\\t'),ctrl-c:reload(git log --decorate --color=always --format='%C(green)[commit] %C(magenta)%h%x09%C(yellow)%cr%x09%C(blue)[%an]%x09%C(auto)%s%d' | column -t -s $'\\t'),ctrl-t:reload(git for-each-ref refs/tags --color=always --format='%(color:green)[tag] %(color:magenta)%(refname:short)%09%(color:yellow)%(authordate:short)%09%(color:blue)[%(authorname)]' 2> /dev/null | column -t -s $'\\t'),ctrl-r:reload(git reflog --decorate --color=always --format='%C(green)[reflog] %C(magenta)%h%x09%C(yellow)%cr%x09%C(blue)[%an]%x09%C(auto)%s%d' 2> /dev/null | column -t -s $'\\t')\" --expect=\"alt-enter\" --preview=\"if [[ {1} == '[branch]' ]]; then;git log {2} --decorate --pretty='format:%C(yellow)%h %C(green)%cd %C(reset)%s%C(red)%d %C(cyan)[%an]' --date=iso --graph --color=always;elif [[ {1} == '[tag]' ]]; then;git log {2} --pretty='format:%C(yellow)%h %C(green)%cd %C(reset)%s%C(red)%d %C(cyan)[%an]' --date=iso --graph --color=always;elif [[ {1} == '[commit]' || {1} == '[reflog]' ]]; then;git show --color=always {2};fi\" --ansi --height='80%' --print0 --no-separator --header='C-b: branch, C-c: commit, C-t: tag, C-r: reflog' --preview-window='down' --prompt='Git Tag> '"
+    },
+    {
+      "name": "git mv files",
+      "patterns": [
+        "^git mv(?: .*)? $"
+      ],
+      "excludePatterns": [],
+      "sourceCommand": "git ls-files -z",
+      "callback": null,
+      "callbackZero": false,
+      "optionsRendered": "--bind=\"ctrl-d:preview-half-page-down,ctrl-u:preview-half-page-up,?:toggle-preview\" --expect=\"alt-enter\" --preview=\"cat {}\" --ansi --height='80%' --print0 --no-separator --multi --prompt='Git Mv Files> ' --read0"
+    },
+    {
+      "name": "git rm files",
+      "patterns": [
+        "^git rm(?: .*)? $"
+      ],
+      "excludePatterns": [],
+      "sourceCommand": "git ls-files -z",
+      "callback": null,
+      "callbackZero": false,
+      "optionsRendered": "--bind=\"ctrl-d:preview-half-page-down,ctrl-u:preview-half-page-up,?:toggle-preview\" --expect=\"alt-enter\" --preview=\"cat {}\" --ansi --height='80%' --print0 --no-separator --multi --prompt='Git Rm Files> ' --read0"
+    },
+    {
+      "name": "git show",
+      "patterns": [
+        "^git show(?: .*)? $"
+      ],
+      "excludePatterns": [
+        " --(?:pretty|format) $"
+      ],
+      "sourceCommand": "git log --decorate --color=always --format='%C(green)[commit] %C(magenta)%h%x09%C(yellow)%cr%x09%C(blue)[%an]%x09%C(auto)%s%d' | column -t -s $'\\t'",
+      "callback": "awk '{print $2}'",
+      "callbackZero": false,
+      "optionsRendered": "--bind=\"ctrl-b:reload(git for-each-ref refs/heads refs/remotes --color=always --format='%(color:green)[branch] %(color:magenta)%(refname:short)%09%(color:yellow)%(authordate:short)%09%(color:blue)[%(authorname)]' 2> /dev/null | column -t -s $'\\t'),ctrl-c:reload(git log --decorate --color=always --format='%C(green)[commit] %C(magenta)%h%x09%C(yellow)%cr%x09%C(blue)[%an]%x09%C(auto)%s%d' | column -t -s $'\\t'),ctrl-t:reload(git for-each-ref refs/tags --color=always --format='%(color:green)[tag] %(color:magenta)%(refname:short)%09%(color:yellow)%(authordate:short)%09%(color:blue)[%(authorname)]' 2> /dev/null | column -t -s $'\\t'),ctrl-r:reload(git reflog --decorate --color=always --format='%C(green)[reflog] %C(magenta)%h%x09%C(yellow)%cr%x09%C(blue)[%an]%x09%C(auto)%s%d' 2> /dev/null | column -t -s $'\\t')\" --expect=\"alt-enter\" --preview=\"if [[ {1} == '[branch]' ]]; then;git log {2} --decorate --pretty='format:%C(yellow)%h %C(green)%cd %C(reset)%s%C(red)%d %C(cyan)[%an]' --date=iso --graph --color=always;elif [[ {1} == '[tag]' ]]; then;git log {2} --pretty='format:%C(yellow)%h %C(green)%cd %C(reset)%s%C(red)%d %C(cyan)[%an]' --date=iso --graph --color=always;elif [[ {1} == '[commit]' || {1} == '[reflog]' ]]; then;git show --color=always {2};fi\" --ansi --height='80%' --print0 --no-separator --header='C-b: branch, C-c: commit, C-t: tag, C-r: reflog' --preview-window='down' --multi --prompt='Git Show> '"
+    },
+    {
+      "name": "git revert",
+      "patterns": [
+        "^git revert(?: .*)? $"
+      ],
+      "excludePatterns": [],
+      "sourceCommand": "git log --decorate --color=always --format='%C(green)[commit] %C(magenta)%h%x09%C(yellow)%cr%x09%C(blue)[%an]%x09%C(auto)%s%d' | column -t -s $'\\t'",
+      "callback": "awk '{print $2}'",
+      "callbackZero": false,
+      "optionsRendered": "--bind=\"ctrl-d:preview-half-page-down,ctrl-u:preview-half-page-up,?:toggle-preview\" --expect=\"alt-enter\" --preview=\"git show --color=always {2}\" --ansi --height='80%' --print0 --no-separator --prompt='Git Revert> ' --no-sort"
+    }
+  ]
+}

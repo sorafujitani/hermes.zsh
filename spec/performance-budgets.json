@@ -1,0 +1,16 @@
+{
+  "definitions": {
+    "shell_startup": "zsh process sourcing hermes.zsh with an already-built release binary",
+    "cold_request": "first health request including daemon start",
+    "warm_request": "health request to an already healthy daemon",
+    "daemon_idle_memory": "resident set size after health and 1 second idle",
+    "large_history_query": "querying 1000 newest distinct commands from a 100000-row SQLite database"
+  },
+  "budgets": {
+    "shell_startup_p50_ms": 25,
+    "cold_request_p50_ms": 250,
+    "warm_request_p50_ms": 10,
+    "daemon_idle_rss_mib": 30,
+    "large_history_query_p50_ms": 100
+  }
+}
