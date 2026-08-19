@@ -38,15 +38,9 @@
               platforms = systems;
             };
           };
-
-          hermesWithTools = pkgs.buildEnv {
-            name = "hermes-${version}";
-            paths = [ hermes pkgs.fzf pkgs.ghq ];
-            pathsToLink = [ "/bin" "/share" ];
-          };
         in {
-          default = hermesWithTools;
-          hermes = hermesWithTools;
+          default = hermes;
+          hermes = hermes;
           hermes-core = hermes;
         });
 

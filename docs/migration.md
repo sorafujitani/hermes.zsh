@@ -11,10 +11,12 @@ brew tap sorafujitani/tap
 brew install hermes
 ```
 
-The Nix flake provides the Rust package together with `fzf` and `ghq`:
+The Nix flake provides the Rust package and Zsh integration. `fzf` and `ghq`
+remain separate packages so an existing Home Manager or Nix profile can provide
+them without file collisions:
 
 ```sh
-nix profile install github:sorafujitani/hermes.zsh#hermes
+nix profile add github:sorafujitani/hermes.zsh#hermes
 ```
 
 For a Nix installation, source the loader from the default profile:

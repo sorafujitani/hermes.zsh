@@ -24,11 +24,10 @@ dependencies `fzf` and `ghq`. It prints the loader line after installation.
 
 ### Nix
 
-The flake exposes a package containing Hermes, the Zsh integration, `fzf`, and
-`ghq`:
+The flake exposes a package containing Hermes and the Zsh integration:
 
 ```sh
-nix profile install github:sorafujitani/hermes.zsh#hermes
+nix profile add github:sorafujitani/hermes.zsh#hermes
 ```
 
 Add the loader to `.zshrc` using the default Nix profile:
@@ -45,10 +44,12 @@ nix develop
 cargo test --workspace
 ```
 
-The Nix package is available as `.#hermes`; `.#hermes-core` is the Hermes-only
-package without the interactive `fzf` and repository-navigation `ghq` tools.
-The locked Nixpkgs input currently targets Apple Silicon macOS and Linux;
-Homebrew remains the installation path for Intel macOS.
+The Nix package is available as `.#hermes`; `.#hermes-core` is retained as an
+alias. Install `fzf` and `ghq` separately when they are not already available.
+Keeping those tools outside the Hermes profile avoids collisions with Home
+Manager and existing Nix profiles. The locked Nixpkgs input currently targets
+Apple Silicon macOS and Linux; Homebrew remains the installation path for Intel
+macOS.
 
 ### Build from source
 
