@@ -16,6 +16,7 @@ use serde::{Deserialize, Serialize};
 use std::fs::{self, File, OpenOptions};
 use std::io;
 use std::os::unix::fs::{MetadataExt, OpenOptionsExt, PermissionsExt};
+use std::os::unix::process::CommandExt;
 use std::path::{Path, PathBuf};
 use std::process::{Command, Stdio};
 use std::sync::Arc;
@@ -296,12 +297,24 @@ pub async fn start(paths: &RuntimePaths, executable: &Path) -> Result<Health, Da
     if paths.socket.exists() {
         fs::remove_file(&paths.socket)?;
     }
-    let child = Command::new(executable)
+    let mut command = Command::new(executable);
+    command
         .args(["server", "run-spawned"])
         .stdin(Stdio::null())
         .stdout(Stdio::null())
-        .stderr(Stdio::null())
-        .spawn()?;
+        .stderr(Stdio::null());
+    // SAFETY: setsid is async-signal-safe and the closure performs no memory
+    // allocation or other work between fork and exec.
+    unsafe {
+        command.pre_exec(|| {
+            if libc::setsid() == -1 {
+                Err(io::Error::last_os_error())
+            } else {
+                Ok(())
+            }
+        });
+    }
+    let child = command.spawn()?;
     fs::write(&paths.pid, format!("{}\n", child.id()))?;
     let deadline = Instant::now() + START_TIMEOUT;
     while Instant::now() < deadline {
